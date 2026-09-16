@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>a question for you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+--plum: #4a1f36;
+--plum-deep: #2e1123;
+--blush: #f6b8c4;
+--coral: #e8734a;
+--cream: #fff7f2;
+--gold: #d9a441;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+margin:0;
+min-height:100vh;
+font-family:'Nunito', sans-serif;
+background: radial-gradient(120% 140% at 20% 0%, #6b2c4c 0%, var(--plum) 45%, var(--plum-deep) 100%);
+color: var(--cream);
+display:flex;
+align-items:center;
+justify-content:center;
+overflow-x:hidden;
+position:relative;
+}
+
+/* floating petals/hearts */
+.petal{
+position:fixed;
+top:-40px;
+font-size:20px;
+opacity:0.55;
+animation: fall linear infinite;
+pointer-events:none;
+z-index:0;
+filter: drop-shadow(0 0 6px rgba(0,0,0,0.15));
+}
+@keyframes fall{
+0%{ transform: translateY(-5vh) translateX(0) rotate(0deg); }
+100%{ transform: translateY(105vh) translateX(var(--drift,20px)) rotate(360deg); }
+}
+
+.stage{
+position:relative;
+z-index:1;
+width:100%;
+max-width:560px;
+margin:24px;
+padding:48px 36px;
+background: rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.14);
+border-radius:28px;
+backdrop-filter: blur(6px);
+text-align:center;
+animation: rise 0.7s cubic-bezier(.2,.9,.25,1);
+}
+@keyframes rise{
+from{ opacity:0; transform: translateY(18px); }
+to{ opacity:1; transform: translateY(0); }
+}
+
+.eyebrow{
+font-size:14px;
+letter-spacing:0.02em;
+color: var(--blush);
+margin:0 0 10px;
+}
+
+.photo-upload{
+display:flex;
+justify-content:center;
+margin: 4px 0 22px;
+}
+.photo-circle{
+width:112px;
+height:112px;
+border-radius:50%;
+border:2px dashed rgba(255,255,255,0.4);
+background: rgba(255,255,255,0.06);
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+overflow:hidden;
+transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.photo-circle:hover{
+border-color: var(--gold);
+background: rgba(255,255,255,0.1);
+transform: translateY(-2px);
+}
+.photo-circle #photoPlaceholder{
+font-family:'Fraunces', serif;
+font-size:26px;
+color: rgba(255,247,242,0.7);
+text-align:center;
+line-height:1.3;
+}
+.photo-label-text{
+display:block;
+font-family:'Nunito', sans-serif;
+font-size:10px;
+font-weight:700;
+letter-spacing:0.02em;
+color: rgba(255,247,242,0.55);
+margin-top:2px;
+}
+.photo-circle img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+h1{
+font-family:'Fraunces', serif;
+font-weight:600;
+font-size: clamp(28px, 6vw, 42px);
+line-height:1.15;
+margin: 0 0 14px;
+color: var(--cream);
+}
+h1 em{
+font-style: italic;
+color: var(--gold);
+}
+
+p.sub{
+font-size:16px;
+line-height:1.6;
+color: rgba(255,247,242,0.82);
+margin:0 0 34px;
+}
+
+.btn-row{
+display:flex;
+gap:18px;
+justify-content:center;
+flex-wrap:wrap;
+position:relative;
+min-height:64px;
+}
+
+button{
+font-family:'Nunito', sans-serif;
+font-weight:700;
+font-size:17px;
+padding:15px 30px;
+border-radius:999px;
+border:none;
+cursor:pointer;
+transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+button:focus-visible{
+outline: 3px solid var(--gold);
+outline-offset: 3px;
+}
+
+#yesBtn{
+background: linear-gradient(135deg, var(--coral), #d9563a);
+color: var(--cream);
+box-shadow: 0 10px 24px rgba(232,115,74,0.35);
+}
+#yesBtn:hover{ transform: translateY(-2px); box-shadow: 0 14px 28px rgba(232,115,74,0.
+45); }
+#yesBtn.grow{ transform: scale(1.18); }
+
+#noBtn{
+background: rgba(255,255,255,0.12);
+color: var(--cream);
+border:1px solid rgba(255,255,255,0.3);
+position: relative;
+}
+#noBtn.fleeing{
+position: fixed;
+}
+
+.hint{
+margin-top:22px;
+font-size:13px;
+color: rgba(255,247,242,0.5);
+min-height:18px;
+}
+
+/* place picker */
+.grid{
+display:grid;
+grid-template-columns: repeat(2, 1fr);
+gap:14px;
+margin-top:8px;
+}
+.place-card{
+background: rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.16);
+border-radius:16px;
+padding:20px 12px;
+cursor:pointer;
+color:var(--cream);
+font-family:'Nunito',sans-serif;
+font-weight:700;
+font-size:15px;
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:8px;
+transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.place-card .icon{ font-size:28px; }
+.place-card:hover{
+transform: translateY(-3px);
+background: rgba(255,255,255,0.12);
+border-color: var(--gold);
+}
+.place-card.selected{
+background: linear-gradient(135deg, var(--coral), #d9563a);
+border-color: transparent;
+}
+
+/* date/time form */
+.field{
+text-align:left;
+margin-bottom:18px;
+}
+.field label{
+display:block;
+font-size:13px;
+font-weight:700;
+color: var(--blush);
+margin-bottom:8px;
+}
+.field input[type="date"],
+.field input[type="time"],
+.field input[type="file"]{
+width:100%;
+padding:12px 14px;
+border-radius:12px;
+border:1px solid rgba(255,255,255,0.25);
+background: rgba(255,255,255,0.08);
+color: var(--cream);
+font-family:'Nunito',sans-serif;
+font-size:15px;
+}
+.field input::-webkit-calendar-picker-indicator{ filter: invert(1); }
+
+.primary-btn{
+width:100%;
+background: linear-gradient(135deg, var(--coral), #d9563a);
+color: var(--cream);
+box-shadow: 0 10px 24px rgba(232,115,74,0.35);
+margin-top:8px;
+}
+.primary-btn:disabled{
+opacity:0.4;
+cursor:not-allowed;
+box-shadow:none;
+}
+.primary-btn:not(:disabled):hover{ transform: translateY(-2px); }
+
+.ghost-btn{
+background:transparent;
+color: rgba(255,247,242,0.6);
+font-size:14px;
+padding:8px 12px;
+margin-top:14px;
+}
+.ghost-btn:hover{ color: var(--cream); }
+
+/* final reveal */
+#finalScreen{
+max-width: 640px;
+padding:0;
+overflow:hidden;
+background-size: cover;
+background-position:center;
+background-color: #2e1123;
+}
+.final-inner{
+padding: 60px 32px 44px;
+background: linear-gradient(180deg, rgba(46,17,35,0.15) 0%, rgba(46,17,35,0.55) 55%, rgba(46,17,35,0.92) 100%);
+min-height: 460px;
+display:flex;
+flex-direction:column;
+justify-content:flex-end;
+align-items:center;
+text-align:center;
+}
+.final-inner h1{ font-size: clamp(30px, 7vw, 44px); }
+.detail-card{
+margin-top:18px;
+padding:18px 24px;
+background: rgba(255,255,255,0.1);
+border:1px solid rgba(255,255,255,0.25);
+border-radius:18px;
+backdrop-filter: blur(4px);
+font-size:16px;
+line-height:1.7;
+}
+.detail-card b{ color: var(--gold); }
+
+.screen{ display:none; }
+.screen.active{ display:block; }
+
+@media (prefers-reduced-motion: reduce){
+.petal{ animation: none; display:none; }
+.stage{ animation:none; }
+}
+
+#muteBtn{
+position: fixed;
+top: 16px;
+right: 16px;
+z-index: 10;
+width: 44px;
+height: 44px;
+padding: 0;
+border-radius: 50%;
+background: rgba(255,255,255,0.12);
+border: 1px solid rgba(255,255,255,0.3);
+color: var(--cream);
+font-size: 18px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop preload="auto">
+<source src="song.mp3" type="audio/mpeg">
+</audio>
+<button id="muteBtn" aria-label="mute music">🔊</button>
+
+<div class="stage screen active" id="askScreen">
+<p class="eyebrow">a question, for you</p>
+
+<div class="photo-upload" id="photoUploadWrap">
+<label for="startPhotoInput" class="photo-circle" id="photoCircle">
+<span id="photoPlaceholder">+<br><span class="photo-label-text">add her picture</span></span>
+<img id="photoPreview" alt="" style="display:none;">
+</label>
+<input type="file" id="startPhotoInput" accept="image/*" hidden>
+</div>
+
+<h1>Hi <em>crush</em> —<br>will you go out on a date with me?</h1>
+<p class="sub">Take your time. Well — take your time deciding between the two options below.</p>
+<div class="btn-row">
+<button id="yesBtn">Yes, I'd love to</button>
+<button id="noBtn">No</button>
+</div>
+<p class="hint" id="hint"></p>
+</div>
+
+<div class="stage screen" id="placeScreen">
+<p class="eyebrow">step one</p>
+<h1>Perfect. <em>Where</em> should we go?</h1>
+<p class="sub">Pick whatever sounds best to you.</p>
+<div class="grid" id="placeGrid">
+<div class="place-card" data-place="Beach"><span class="icon">🏖️</span>Beach</div>
+<div class="place-card" data-place="Mall"><span class="icon">🛍️</span>Mall</div>
+<div class="place-card" data-place="Cinema"><span class="icon">🎬</span>Cinema</div>
+<div class="place-card" data-place="Late Night Walk"><span class="icon">🌙</span>Late Night Walk</div>
+<div class="place-card" data-place="Hotel"><span class="icon">🏨</span>Hotel</div>
+<div class="place-card" data-place="Eatery"><span class="icon">🍽️</span>Eatery</div>
+</div>
+<button class="primary-btn" id="placeNextBtn" disabled style="margin-top:26px;">Continue</button>
+</div>
+
+<div class="stage screen" id="detailsScreen">
+<p class="eyebrow">step two</p>
+<h1>When should we <em>meet</em>?</h1>
+<p class="sub">Choose a day and time that works for you.</p>
+
+<div class="field">
+<label for="dateInput">Date</label>
+<input type="date" id="dateInput">
+</div>
+<div class="field">
+<label for="timeInput">Time</label>
+<input type="time" id="timeInput">
+</div>
+
+<button class="primary-btn" id="revealBtn" disabled>It's a date</button>
+<button class="ghost-btn" id="backToPlaceBtn">← back</button>
+</div>
+
+<div class="stage screen" id="finalScreen">
+<div class="final-inner">
+<p class="eyebrow" style="color:var(--gold);">it's official</p>
+<h1>See you there. <em>❤</em></h1>
+<div class="detail-card">
+<b>Place:</b> <span id="finalPlace"></span><br>
+<b>Date:</b> <span id="finalDate"></span><br>
+<b>Time:</b> <span id="finalTime"></span>
+</div>
+</div>
+</div>
+
+<script>
+// decorative falling hearts/petals
+const petalChars = ['❤','🌸','✨'];
+for(let i=0;i<18;i++){
+const p = document.createElement('div');
+p.className='petal';
+p.textContent = petalChars[Math.floor(Math.random()*petalChars.length)];
+p.style.left = Math.random()*100+'vw';
+p.style.setProperty('--drift', (Math.random()*80-40)+'px');
+p.style.animationDuration = (8+Math.random()*10)+'s';
+p.style.animationDelay = (Math.random()*10)+'s';
+p.style.fontSize = (14+Math.random()*14)+'px';
+document.body.appendChild(p);
+}
+
+const screens = {
+ask: document.getElementById('askScreen'),
+place: document.getElementById('placeScreen'),
+details: document.getElementById('detailsScreen'),
+final: document.getElementById('finalScreen')
+};
+function showScreen(name){
+Object.values(screens).forEach(s=>s.classList.remove('active'));
+screens[name].classList.add('active');
+window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// --- background music ---
+const bgMusic = document.getElementById('bgMusic');
+const muteBtn = document.getElementById('muteBtn');
+let isMuted = false;
+muteBtn.addEventListener('click', ()=>{
+isMuted = !isMuted;
+bgMusic.muted = isMuted;
+muteBtn.textContent = isMuted ? '🔇' : '🔊';
+if(!isMuted) bgMusic.play().catch(()=>{});
+});
+
+// --- Yes / No button behavior ---
+const yesBtn = document.getElementById('yesBtn');
+const noBtn = document.getElementById('noBtn');
+const btnRow = document.querySelector('#askScreen .btn-row');
+const hint = document.getElementById('hint');
+const noExcuses = [
+"nope, try again 👀",
+"almost! ...not quite",
+"she said run 🏃",
+"the button has trust issues",
+"keep trying, I dare you",
+"so close!"
+];
+let dodgeCount = 0;
+
+function dodge(){
+dodgeCount++;
+const stageRect = document.getElementById('askScreen').getBoundingClientRect();
+const btnRect = noBtn.getBoundingClientRect();
+
+// switch to fixed positioning so it can roam the whole viewport
+if(!noBtn.classList.contains('fleeing')){
+noBtn.classList.add('fleeing');
+noBtn.style.width = btnRect.width+'px';
+}
+
+const margin = 16;
+const maxX = window.innerWidth - btnRect.width - margin;
+const maxY = window.innerHeight - btnRect.height - margin;
+const newX = Math.max(margin, Math.random()*maxX);
+const newY = Math.max(margin, Math.random()*maxY);
+
+noBtn.style.left = newX+'px';
+noBtn.style.top = newY+'px';
+
+hint.textContent = noExcuses[Math.min(dodgeCount-1, noExcuses.length-1)];
+yesBtn.classList.add('grow');
+}
+
+noBtn.addEventListener('mouseenter', dodge);
+noBtn.addEventListener('click', (e)=>{ e.preventDefault(); dodge(); });
+noBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); dodge(); }, {passive:false});
+window.addEventListener('resize', ()=>{
+if(noBtn.classList.contains('fleeing')) dodge();
+});
+
+yesBtn.addEventListener('click', ()=>{
+showScreen('place');
+bgMusic.volume = 0.6;
+bgMusic.play().catch(()=>{ /* if it can't autoplay, the mute button still lets her start it */ });
+});
+
+// --- place picker ---
+let selectedPlace = null;
+const placeCards = document.querySelectorAll('.place-card');
+const placeNextBtn = document.getElementById('placeNextBtn');
+placeCards.forEach(card=>{
+card.addEventListener('click', ()=>{
+placeCards.forEach(c=>c.classList.remove('selected'));
+card.classList.add('selected');
+selectedPlace = card.dataset.place;
+placeNextBtn.disabled = false;
+});
+});
+placeNextBtn.addEventListener('click', ()=>{
+if(selectedPlace) showScreen('details');
+});
+
+// --- date/time + photo ---
+const dateInput = document.getElementById('dateInput');
+const timeInput = document.getElementById('timeInput');
+const revealBtn = document.getElementById('revealBtn');
+const backToPlaceBtn = document.getElementById('backToPlaceBtn');
+
+// set min date to today
+const today = new Date().toISOString().split('T')[0];
+dateInput.min = today;
+
+function checkDetailsValid(){
+revealBtn.disabled = !(dateInput.value && timeInput.value);
+}
+dateInput.addEventListener('change', checkDetailsValid);
+timeInput.addEventListener('change', checkDetailsValid);
+backToPlaceBtn.addEventListener('click', ()=> showScreen('place'));
+
+let photoDataUrl = null;
+const startPhotoInput = document.getElementById('startPhotoInput');
+const photoPreview = document.getElementById('photoPreview');
+const photoPlaceholder = document.getElementById('photoPlaceholder');
+
+startPhotoInput.addEventListener('change', ()=>{
+const file = startPhotoInput.files[0];
+if(!file) { photoDataUrl = null; return; }
+const reader = new FileReader();
+reader.onload = (e)=>{
+photoDataUrl = e.target.result;
+photoPreview.src = photoDataUrl;
+photoPreview.style.display = 'block';
+photoPlaceholder.style.display = 'none';
+};
+reader.readAsDataURL(file);
+});
+
+function formatDate(str){
+const d = new Date(str+'T00:00:00');
+return d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+function formatTime(str){
+const [h,m] = str.split(':');
+const d = new Date();
+d.setHours(+h, +m);
+return d.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+}
+
+// ⬇️ PASTE YOUR FORMSPREE ENDPOINT HERE (see setup steps) ⬇️
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mnpnabqd";
+
+revealBtn.addEventListener('click', ()=>{
+const placeChosen = selectedPlace;
+const dateChosen = formatDate(dateInput.value);
+const timeChosen = formatTime(timeInput.value);
+
+document.getElementById('finalPlace').textContent = placeChosen;
+document.getElementById('finalDate').textContent = dateChosen;
+document.getElementById('finalTime').textContent = timeChosen;
+
+const finalScreen = document.getElementById('finalScreen');
+if(photoDataUrl){
+finalScreen.style.backgroundImage = `url(${photoDataUrl})`;
+} else {
+finalScreen.style.backgroundImage = 'linear-gradient(135deg, #6b2c4c, #2e1123)';
+}
+showScreen('final');
+
+// send you an email notification, silently — she never sees this happen
+if(FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) return; // not configured yet
+fetch(FORMSPREE_ENDPOINT, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+body: JSON.stringify({
+subject: "She said YES! 🎉",
+message: `She accepted your date! Place: ${placeChosen} | Date: ${dateChosen} | Time: ${timeChosen}`,
+place: placeChosen,
+date: dateChosen,
+time: timeChosen
+})
+}).catch(()=>{ /* fails silently, doesn't affect her experience */ });
+});
+</script>
+</body>
+</html>
+
